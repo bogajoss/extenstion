@@ -338,7 +338,8 @@ import type {
       const hasEngagement = article.querySelector(
         '[aria-label*="comment" i], [aria-label*="like" i], [aria-label*="share" i], [aria-label*="মন্তব্য" i], [aria-label*="লাইক" i], [aria-label*="শেয়ার" i], [aria-label*="শেয়ার" i]'
       );
-      if (hasPostLink || hasPostMetadata || hasEngagement) {
+      const hasPostText = (article.innerText || '').trim().length > 80;
+      if (hasPostLink || hasPostMetadata || hasEngagement || hasPostText) {
         seen.add(article);
         posts.push(article);
       }
@@ -664,17 +665,20 @@ import type {
 
   function findScrollableAncestor(start: HTMLElement | null): HTMLElement | null {
     let current = start;
+    let hiddenCandidate: HTMLElement | null = null;
     while (current && current !== document.body) {
       const style = window.getComputedStyle(current);
       const overflowY = style.overflowY;
       const canScroll = current.scrollHeight > current.clientHeight + 100;
-      const scrollSurface = overflowY !== 'visible' && overflowY !== 'clip';
-      if (canScroll && scrollSurface) {
+      if (canScroll && (overflowY === 'auto' || overflowY === 'scroll' || overflowY === 'overlay')) {
         return current;
+      }
+      if (canScroll && overflowY === 'hidden' && !hiddenCandidate) {
+        hiddenCandidate = current;
       }
       current = current.parentElement;
     }
-    return null;
+    return hiddenCandidate;
   }
 
   function getScrollTarget(): HTMLElement | Window {
