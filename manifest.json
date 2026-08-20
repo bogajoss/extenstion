@@ -24,7 +24,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["styles.css"],
+      "resources": ["styles.css", "fonts/*"],
       "matches": ["https://*.facebook.com/*"]
     }
   ]
