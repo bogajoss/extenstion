@@ -11,7 +11,7 @@ interface ResultsListProps {
 
 export function ResultsList({ results, query }: ResultsListProps) {
   return (
-    <div className="flex-1 min-h-0 overflow-y-auto p-2 rounded-xl bg-muted/30 border space-y-2">
+    <div className=" p-2 rounded-xl bg-muted/30 border space-y-2">
       {results.length === 0 ? (
         <Card className="p-8 text-center text-sm text-muted-foreground italic border-dashed shadow-sm">
           {query ? 'কোনো মিল পাওয়া যায়নি।' : 'এখনো কোনো ফলাফল পাওয়া যায়নি। পোস্ট খুঁজতে স্ক্যান চালান।'}

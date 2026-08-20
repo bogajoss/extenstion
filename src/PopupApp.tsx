@@ -31,7 +31,7 @@ export function PopupApp() {
   };
 
   return (
-    <div className="w-full h-full flex flex-col bg-background text-foreground space-y-4 font-sans p-4">
+    <div className="w-full min-h-screen flex flex-col bg-background text-foreground space-y-4 font-sans p-4">
       <Header
         title="প্রহর ফেসবুক টুলকিট"
         subtitle="মাল্টি-পেইজ কিউ এবং ফিড স্ক্যানার"
@@ -89,7 +89,7 @@ export function PopupApp() {
         />
       </div>
 
-      <div className="flex-1 min-h-0 flex flex-col pt-2 border-t">
+      <div className="flex flex-col pt-2 border-t">
         <ExportToolbar 
           resultCount={scanner.filteredResults.length}
           exportResults={scanner.exportResults}
