@@ -324,6 +324,26 @@ import type {
     const posts: HTMLElement[] = [];
     const seen = new Set<HTMLElement>();
 
+    // Facebook page feeds commonly expose posts as role=article even when
+    // the older data-ad-rendering-role attributes are absent.
+    const articleCandidates = document.querySelectorAll<HTMLElement>('[role="article"]');
+    for (const article of articleCandidates) {
+      if (seen.has(article) || !isVisible(article)) continue;
+      const hasPostLink = article.querySelector(
+        'a[href*="/posts/"], a[href*="story_fbid"], a[href*="/photo"], a[href*="/videos/"], a[href*="/reel/"], a[href*="/permalink/"]'
+      );
+      const hasPostMetadata = article.querySelector(
+        '[data-ad-rendering-role="story_message"], [data-ad-rendering-role="profile_name"]'
+      );
+      const hasEngagement = article.querySelector(
+        '[aria-label*="comment" i], [aria-label*="like" i], [aria-label*="share" i], [aria-label*="মন্তব্য" i], [aria-label*="লাইক" i], [aria-label*="শেয়ার" i], [aria-label*="শেয়ার" i]'
+      );
+      if (hasPostLink || hasPostMetadata || hasEngagement) {
+        seen.add(article);
+        posts.push(article);
+      }
+    }
+
     // ১. ফিড থেকে সরাসরি পোস্ট
     const feed = document.querySelector<HTMLElement>('[role="feed"]');
     if (feed) {
@@ -349,8 +369,10 @@ import type {
       }
     }
 
-    // ৩. aria-label="Leave a comment" থেকে
-    const commentButtons = document.querySelectorAll<HTMLElement>('[aria-label="Leave a comment"]');
+    // ৩. comment action থেকে
+    const commentButtons = document.querySelectorAll<HTMLElement>(
+      '[aria-label*="comment" i], [aria-label*="মন্তব্য" i]'
+    );
     for (const btn of commentButtons) {
       let parent: HTMLElement | null =
         btn.closest<HTMLElement>('[role="article"]') ||
@@ -527,19 +549,23 @@ import type {
     let shares = 0;
     let likes = 0;
 
-    const commentBtn = node.querySelector<HTMLElement>('[aria-label="Leave a comment"]');
+    const commentBtn = node.querySelector<HTMLElement>(
+      '[aria-label*="comment" i], [aria-label*="মন্তব্য" i]'
+    );
     if (commentBtn) {
       const num = parseNumber(clean(commentBtn.textContent));
       if (num > 0) comments = num;
     }
 
-    const shareBtn = node.querySelector<HTMLElement>('[aria-label="Send this to friends or post it on your profile."]');
+    const shareBtn = node.querySelector<HTMLElement>(
+      '[aria-label*="share" i], [aria-label*="শেয়ার" i], [aria-label*="শেয়ার" i]'
+    );
     if (shareBtn) {
       const num = parseNumber(clean(shareBtn.textContent));
       if (num > 0) shares = num;
     }
 
-    const likeBtn = node.querySelector<HTMLElement>('[aria-label="Like"]');
+    const likeBtn = node.querySelector<HTMLElement>('[aria-label*="like" i], [aria-label*="লাইক" i]');
     if (likeBtn) {
       const num = parseNumber(clean(likeBtn.textContent));
       if (num > 0) likes = num;
@@ -642,7 +668,8 @@ import type {
       const style = window.getComputedStyle(current);
       const overflowY = style.overflowY;
       const canScroll = current.scrollHeight > current.clientHeight + 100;
-      if (canScroll && (overflowY === 'auto' || overflowY === 'scroll' || overflowY === 'overlay')) {
+      const scrollSurface = overflowY !== 'visible' && overflowY !== 'clip';
+      if (canScroll && scrollSurface) {
         return current;
       }
       current = current.parentElement;
@@ -712,9 +739,9 @@ import type {
 
     const amount = Math.max(metrics.viewport * 0.7, 500);
     if (target === window) {
-      window.scrollBy({ top: amount, behavior: 'smooth' });
+      window.scrollBy({ top: amount, behavior: 'auto' });
     } else {
-      target.scrollBy({ top: amount, behavior: 'smooth' });
+      target.scrollBy({ top: amount, behavior: 'auto' });
     }
     return true;
   }
