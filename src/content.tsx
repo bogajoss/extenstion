@@ -633,10 +633,22 @@ import type {
   }
 
   function scrollPage(): boolean {
+    const prevScroll = window.scrollY;
+    window.scrollBy({ top: Math.max(window.innerHeight * 0.7, 500), behavior: 'smooth' });
+    
+    const scrollableDivs = Array.from(document.querySelectorAll('div')).filter(d => {
+      const style = window.getComputedStyle(d);
+      return d.scrollHeight > d.clientHeight && d.clientHeight > 400 && (style.overflowY === 'auto' || style.overflowY === 'scroll');
+    });
+    for (const d of scrollableDivs) {
+      d.scrollBy({ top: 500, behavior: 'smooth' });
+    }
+
     const scrollHeight = Math.max(document.documentElement.scrollHeight, document.body?.scrollHeight || 0);
     const atBottom = window.scrollY + window.innerHeight >= scrollHeight - 100;
+    
     if (atBottom) {
-      if (scrollRetries > 3) {
+      if (scrollRetries > 15) {
         finish(`✅ Done: Feed end (${state.scanned} scanned)`);
         return false;
       }
@@ -644,7 +656,6 @@ import type {
     } else {
       scrollRetries = 0;
     }
-    window.scrollBy({ top: Math.max(window.innerHeight * 0.7, 500), behavior: 'smooth' });
     return true;
   }
 
