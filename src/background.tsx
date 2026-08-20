@@ -377,9 +377,25 @@ async function startQueue(
     return;
   }
 
+  let targetTabId;
   const [activeTab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-  if (!activeTab?.id) {
-    sendResponse({ success: false, error: 'Could not find the active tab' });
+  
+  if (activeTab?.id && !activeTab.url?.startsWith('chrome-extension://')) {
+    targetTabId = activeTab.id;
+  } else {
+    const normalWindows = await chrome.windows.getAll({ windowTypes: ['normal'] });
+    const targetWindow = normalWindows.find(w => w.id !== undefined);
+    if (targetWindow?.id) {
+      const tab = await chrome.tabs.create({ windowId: targetWindow.id, url: 'about:blank', active: true });
+      targetTabId = tab.id;
+    } else {
+      const win = await chrome.windows.create({ url: 'about:blank', type: 'normal' });
+      targetTabId = win.tabs?.[0]?.id;
+    }
+  }
+
+  if (!targetTabId) {
+    sendResponse({ success: false, error: 'Could not find or create a tab' });
     return;
   }
 
@@ -390,7 +406,7 @@ async function startQueue(
     ...createQueueState(),
     running: true,
     totalUrls: cleanUrls.length,
-    currentTabId: activeTab.id,
+    currentTabId: targetTabId,
     queue: cleanUrls,
     config: {
       limit: Math.max(1, Number(config?.limit) || 100),
@@ -401,7 +417,7 @@ async function startQueue(
   };
 
   await chrome.storage.local.remove(['commentFinder', RESULTS_STORAGE_KEY]);
-  logQueue('Queue started', `${cleanUrls.length} URLs on tab ${activeTab.id}`);
+  logQueue('Queue started', `${cleanUrls.length} URLs on tab ${targetTabId}`);
   await publishQueueState();
   sendResponse({ success: true, queue: publicQueueState() });
   navigateToNextUrl().catch(error => console.error('[Queue] Navigation failed', error));
