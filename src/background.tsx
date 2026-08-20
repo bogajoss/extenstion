@@ -30,7 +30,7 @@ const createQueueState = (): QueueState => ({
   processed: [],
   failed: [],
   config: { limit: 100, minimumComments: 15, speed: 'normal' },
-  message: 'Ready',
+  message: 'প্রস্তুত',
   logs: []
 });
 
@@ -216,7 +216,7 @@ async function navigateToNextUrl(): Promise<void> {
   queueState.currentItemDone = false;
   queueState.readyCheckingUrl = '';
   queueState.scanStarted = false;
-  queueState.message = `Loading page ${nextIndex + 1}/${queueState.totalUrls}`;
+  queueState.message = `পেইজ লোড হচ্ছে ${nextIndex + 1}/${queueState.totalUrls}`;
   logQueue('Loading page', `${nextIndex + 1}/${queueState.totalUrls} → ${url}`);
   await publishQueueState();
 
@@ -281,7 +281,7 @@ async function startCurrentScan(tabId: number, url: string): Promise<void> {
   if (!isCurrentQueue(tabId) || queueState.currentUrl !== url || queueState.scanStarted) return;
   queueState.scanStarted = true;
   queueState.currentPageName = '';
-  queueState.message = `Scanning page ${queueState.currentIndex + 1}/${queueState.totalUrls}`;
+  queueState.message = `স্ক্যান করা হচ্ছে ${queueState.currentIndex + 1}/${queueState.totalUrls}`;
   await publishQueueState();
 
   try {
@@ -311,7 +311,7 @@ async function completeCurrentUrl(tabId: number, result: ScanCompleteMessage): P
   };
   queueState.processed.push(item);
   queueState.currentPageName = item.pageName;
-  queueState.message = `Completed page ${queueState.currentIndex + 1}/${queueState.totalUrls}`;
+  queueState.message = `সম্পন্ন পেইজ ${queueState.currentIndex + 1}/${queueState.totalUrls}`;
   logQueue('Page complete', `${item.pageName} — ${item.matched} matches`);
 
   const storedPayload: StoredResults = {
@@ -343,7 +343,7 @@ async function failCurrentUrl(reason: string): Promise<void> {
     reason,
     failedAt: new Date().toISOString()
   });
-  queueState.message = `Skipped page ${queueState.currentIndex + 1}/${queueState.totalUrls}`;
+  queueState.message = `বাদ দেওয়া পেইজ ${queueState.currentIndex + 1}/${queueState.totalUrls}`;
   logQueue('Page skipped', `${queueState.currentUrl} — ${reason}`);
   await publishQueueState();
 
@@ -355,7 +355,7 @@ async function finishQueue(): Promise<void> {
   queueState.running = false;
   queueState.paused = false;
   queueState.currentTabId = null;
-  queueState.message = `Queue complete — ${queueState.processed.length} completed, ${queueState.failed.length} failed`;
+  queueState.message = `কিউ সম্পন্ন — ${queueState.processed.length} সম্পন্ন, ${queueState.failed.length} ব্যর্থ`;
   logQueue('Queue complete', `${queueState.processed.length} completed / ${queueState.failed.length} failed`);
   await publishQueueState();
 }
@@ -397,7 +397,7 @@ async function startQueue(
       minimumComments: Math.max(0, Number(config?.minimumComments) || 15),
       speed
     },
-    message: `Starting queue with ${cleanUrls.length} page${cleanUrls.length === 1 ? '' : 's'}`
+    message: `${cleanUrls.length} টি পেইজ নিয়ে কিউ শুরু হচ্ছে`
   };
 
   await chrome.storage.local.remove(['commentFinder', RESULTS_STORAGE_KEY]);
@@ -412,8 +412,8 @@ async function togglePauseQueue(): Promise<ApiResponse> {
   if (!queueState.running && !queueState.paused) return { success: false, error: 'No queue is running' };
 
   queueState.paused = !queueState.paused;
-  queueState.message = queueState.paused ? 'Queue paused' : 'Queue resumed';
-  logQueue(queueState.paused ? 'Queue paused' : 'Queue resumed');
+  queueState.message = queueState.paused ? 'কিউ পজ করা হয়েছে' : 'কিউ আবার শুরু করা হয়েছে';
+  logQueue(queueState.paused ? 'কিউ পজ করা হয়েছে' : 'কিউ আবার শুরু করা হয়েছে');
 
   if (queueState.currentTabId) {
     try {
@@ -437,8 +437,8 @@ async function stopQueue(): Promise<ApiResponse> {
   queueState.paused = false;
   queueState.stopped = true;
   queueState.currentTabId = null;
-  queueState.message = 'Queue stopped';
-  logQueue('Queue stopped');
+  queueState.message = 'কিউ বন্ধ করা হয়েছে';
+  logQueue('কিউ বন্ধ করা হয়েছে');
 
   if (tabId) {
     try {

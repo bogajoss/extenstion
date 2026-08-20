@@ -3,14 +3,14 @@
 @import "shadcn/tailwind.css";
 @font-face {
   font-family: 'Hind Siliguri';
-  src: url('./fonts/HindSiliguri-Regular.ttf') format('truetype');
+  src: url('./fonts/HindSiliguri-Regular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Hind Siliguri';
-  src: url('./fonts/HindSiliguri-Bold.ttf') format('truetype');
+  src: url('./fonts/HindSiliguri-Bold.woff2') format('woff2');
   font-weight: 700;
   font-style: normal;
 }

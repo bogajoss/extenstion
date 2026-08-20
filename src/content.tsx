@@ -29,7 +29,7 @@ import type {
     scanned: 0,
     matched: 0,
     results: [],
-    message: 'Ready',
+    message: 'প্রস্তুত',
     logs: [],
     network: navigator.onLine ? 'online' : 'offline',
     limit: CONFIG.limit,
@@ -651,12 +651,12 @@ import type {
   function tick(): void {
     if (!state.running || state.paused) return;
     if (!navigator.onLine) {
-      state.message = '⚠️ Offline';
+      state.message = '⚠️ অফলাইন';
       emitState();
       schedule();
       return;
     }
-    state.message = '🔍 Scanning...';
+    state.message = '🔍 স্ক্যান করা হচ্ছে...';
     scan();
     if (state.scanned < CONFIG.limit) scrollPage();
     if (state.scanned >= CONFIG.limit) {
@@ -702,7 +702,7 @@ import type {
       scanned: 0,
       matched: 0,
       results: [],
-      message: '🚀 Started',
+      message: '🚀 শুরু হয়েছে',
       network: navigator.onLine ? 'online' : 'offline',
       limit: CONFIG.limit,
       minimumComments: CONFIG.minimumComments
@@ -716,8 +716,8 @@ import type {
   function pause(): void {
     if (!state.running) return;
     state.paused = !state.paused;
-    state.message = state.paused ? '⏸️ Paused' : '▶️ Scanning';
-    log(state.paused ? '⏸️ Paused' : '▶️ Resumed');
+    state.message = state.paused ? '⏸️ পজ করা হয়েছে' : '▶️ স্ক্যান করা হচ্ছে';
+    log(state.paused ? '⏸️ পজ করা হয়েছে' : '▶️ আবার শুরু হয়েছে');
     emitState();
     if (!state.paused) tick();
   }
@@ -729,7 +729,7 @@ import type {
   function clearResults(): void {
     state.results = [];
     state.matched = 0;
-    state.message = '🗑️ Cleared';
+    state.message = '🗑️ মুছে ফেলা হয়েছে';
     log('🗑️ Cleared');
     emitState();
   }

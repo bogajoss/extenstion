@@ -31,7 +31,7 @@ export function PopupApp() {
   };
 
   return (
-    <div className="w-[800px] h-[600px] flex flex-col p-4 bg-background text-foreground space-y-4 font-sans">
+    <div className="w-full h-full flex flex-col bg-background text-foreground space-y-4 font-sans p-4">
       <Header
         title="পোস্ট ফাইন্ডার প্রো"
         subtitle="মাল্টি-পেইজ কিউ এবং ফিড স্ক্যানার"
