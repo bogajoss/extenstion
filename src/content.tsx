@@ -15,6 +15,8 @@ import type {
 
 
   // ===== কনফিগারেশন =====
+  const INITIAL_LOAD_DELAY_MS = 8000;
+
   const CONFIG: ScanConfig = {
     limit: 100,
     minimumComments: 15,
@@ -725,9 +727,10 @@ import type {
     });
     scrollRetries = 0;
     loadWaitRetries = 0;
+    state.message = '⏳ পেইজ লোড হচ্ছে...';
     log('🚀 START', `Limit ${CONFIG.limit}, Min ${CONFIG.minimumComments}`);
     emitState();
-    tick();
+    timer = setTimeout(tick, INITIAL_LOAD_DELAY_MS);
   }
 
   function pause(): void {
