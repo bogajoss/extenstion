@@ -40,6 +40,7 @@ import type {
   let processedNodes = new WeakSet<HTMLElement>();
   let timer: ReturnType<typeof setTimeout> | null = null;
   let scrollRetries = 0;
+  let loadWaitRetries = 0;
   let completionSent = false; // Send one completion message per queue page.
 
   // ===== হেলপার ফাংশন =====
@@ -633,8 +634,23 @@ import type {
   }
 
   function scrollPage(): boolean {
+    const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
     const scrollHeight = Math.max(document.documentElement.scrollHeight, document.body?.scrollHeight || 0);
-    const atBottom = window.scrollY + window.innerHeight >= scrollHeight - 100;
+
+    // Facebook often injects the feed after document_idle. At that point the
+    // document is only one viewport tall, so treating it as the bottom would
+    // finish the scan before the first post is available.
+    if (scrollHeight <= viewportHeight + 100) {
+      loadWaitRetries++;
+      if (loadWaitRetries > 15) {
+        finish(`⚠️ Feed did not become scrollable (${state.scanned} scanned)`);
+        return false;
+      }
+      return true;
+    }
+    loadWaitRetries = 0;
+
+    const atBottom = window.scrollY + viewportHeight >= scrollHeight - 100;
     if (atBottom) {
       if (scrollRetries > 3) {
         finish(`✅ Done: Feed end (${state.scanned} scanned)`);
@@ -644,7 +660,7 @@ import type {
     } else {
       scrollRetries = 0;
     }
-    window.scrollBy({ top: Math.max(window.innerHeight * 0.7, 500), behavior: 'smooth' });
+    window.scrollBy({ top: Math.max(viewportHeight * 0.7, 500), behavior: 'smooth' });
     return true;
   }
 
@@ -708,6 +724,7 @@ import type {
       minimumComments: CONFIG.minimumComments
     });
     scrollRetries = 0;
+    loadWaitRetries = 0;
     log('🚀 START', `Limit ${CONFIG.limit}, Min ${CONFIG.minimumComments}`);
     emitState();
     tick();
