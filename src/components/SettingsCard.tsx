@@ -43,7 +43,7 @@ export function SettingsCard({
           </div>
           <div className="flex flex-col gap-1">
             <label className="text-xs text-muted-foreground">গতি</label>
-            <Select value={speed} onValueChange={(val: 'slow'|'normal'|'fast') => setSpeed(val)} disabled={active}>
+            <Select value={speed} onValueChange={(val) => val && setSpeed(val as 'slow'|'normal'|'fast')} disabled={active}>
               <SelectTrigger className="h-8"><SelectValue placeholder="গতি" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="slow">ধীর</SelectItem>

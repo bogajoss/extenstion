@@ -33,11 +33,11 @@ export function Header({ title, subtitle, theme, toggleTheme, actions, onMouseDo
       <div className="flex gap-1">
         <TooltipProvider>
           <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" onClick={toggleTheme}>
+            <TooltipTrigger render={
+<Button variant="ghost" size="icon" onClick={toggleTheme}>
                 {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
               </Button>
-            </TooltipTrigger>
+} />
             <TooltipContent>থিম পরিবর্তন করুন</TooltipContent>
           </Tooltip>
           {actions}

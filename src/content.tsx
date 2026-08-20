@@ -79,7 +79,6 @@ import type {
     chrome.storage.local.set({ commentFinder: state });
     chrome.runtime.sendMessage({ type: 'stateUpdate', state }).catch(() => {});
     if (overlay) {
-      overlay.updateScannerState(state);
     }
   };
 

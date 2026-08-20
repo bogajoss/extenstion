@@ -128,20 +128,20 @@ export function OverlayApp({ isOpen, onClose, onToggle }: OverlayAppProps) {
             actions={
               <>
                 <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" onClick={() => setIsMinimized(true)}>
+                  <TooltipTrigger render={
+<Button variant="ghost" size="icon" onClick={() => setIsMinimized(true)}>
                       <Minimize2 className="w-4 h-4" />
                     </Button>
-                  </TooltipTrigger>
+} />
                   <TooltipContent>হুড এ মিনিমাইজ করুন</TooltipContent>
                 </Tooltip>
                 
                 <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="hover:bg-destructive hover:text-destructive-foreground" onClick={onClose}>
+                  <TooltipTrigger render={
+<Button variant="ghost" size="icon" className="hover:bg-destructive hover:text-destructive-foreground" onClick={onClose}>
                       <X className="w-4 h-4" />
                     </Button>
-                  </TooltipTrigger>
+} />
                   <TooltipContent>বন্ধ করুন</TooltipContent>
                 </Tooltip>
               </>

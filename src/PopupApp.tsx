@@ -41,20 +41,20 @@ export function PopupApp() {
         actions={
           <>
             <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" onClick={openOverlay}>
+              <TooltipTrigger render={
+<Button variant="ghost" size="icon" onClick={openOverlay}>
                   <Search className="h-4 w-4" />
                 </Button>
-              </TooltipTrigger>
+} />
               <TooltipContent>ওভারলে খুলুন</TooltipContent>
             </Tooltip>
             
             <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" onClick={openWindow}>
+              <TooltipTrigger render={
+<Button variant="ghost" size="icon" onClick={openWindow}>
                   <Link className="h-4 w-4" />
                 </Button>
-              </TooltipTrigger>
+} />
               <TooltipContent>উইন্ডো খুলুন</TooltipContent>
             </Tooltip>
           </>
