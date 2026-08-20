@@ -15,7 +15,7 @@ import type {
 
 
   // ===== কনফিগারেশন =====
-  const INITIAL_LOAD_DELAY_MS = 8000;
+  const INITIAL_LOAD_DELAY_MS = 10000;
 
   const CONFIG: ScanConfig = {
     limit: 100,
@@ -43,6 +43,7 @@ import type {
   let timer: ReturnType<typeof setTimeout> | null = null;
   let scrollRetries = 0;
   let loadWaitRetries = 0;
+  let noScrollBefore = 0;
   let completionSent = false; // Send one completion message per queue page.
 
   // ===== হেলপার ফাংশন =====
@@ -636,6 +637,8 @@ import type {
   }
 
   function scrollPage(): boolean {
+    if (Date.now() < noScrollBefore) return true;
+
     const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
     const scrollHeight = Math.max(document.documentElement.scrollHeight, document.body?.scrollHeight || 0);
 
@@ -668,6 +671,10 @@ import type {
 
   function tick(): void {
     if (!state.running || state.paused) return;
+    if (Date.now() < noScrollBefore) {
+      timer = setTimeout(tick, noScrollBefore - Date.now());
+      return;
+    }
     if (!navigator.onLine) {
       state.message = '⚠️ অফলাইন';
       emitState();
@@ -727,6 +734,7 @@ import type {
     });
     scrollRetries = 0;
     loadWaitRetries = 0;
+    noScrollBefore = Date.now() + INITIAL_LOAD_DELAY_MS;
     state.message = '⏳ পেইজ লোড হচ্ছে...';
     log('🚀 START', `Limit ${CONFIG.limit}, Min ${CONFIG.minimumComments}`);
     emitState();
