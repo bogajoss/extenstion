@@ -390,7 +390,7 @@ async function startQueue(
       targetTabId = tab.id;
     } else {
       const win = await chrome.windows.create({ url: 'about:blank', type: 'normal' });
-      targetTabId = win.tabs?.[0]?.id;
+      targetTabId = win?.tabs?.[0]?.id;
     }
   }
 
