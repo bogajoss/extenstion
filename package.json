@@ -2,7 +2,7 @@
   "name": "post-finder-pro",
   "private": true,
   "scripts": {
-    "build": "vite build",
+    "build": "vite build && bun run build:css",
     "build:css": "bunx @tailwindcss/cli -i ./input.css -o ./dist/styles.css --minify",
     "dev:css": "bunx @tailwindcss/cli -i ./input.css -o ./dist/styles.css --watch",
     "typecheck": "tsc --noEmit"
