@@ -636,7 +636,7 @@ import type {
     const scrollHeight = Math.max(document.documentElement.scrollHeight, document.body?.scrollHeight || 0);
     const atBottom = window.scrollY + window.innerHeight >= scrollHeight - 100;
     if (atBottom) {
-      if (scrollRetries > 6) {
+      if (scrollRetries > 3) {
         finish(`✅ Done: Feed end (${state.scanned} scanned)`);
         return false;
       }

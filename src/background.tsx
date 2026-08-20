@@ -377,29 +377,34 @@ async function startQueue(
     return;
   }
 
-  let targetTabId;
+  let targetTabId: number | undefined;
   const [activeTab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-  
-  if (activeTab?.id && !activeTab.url?.startsWith('chrome-extension://')) {
-    // We are in a normal tab. Reuse it.
+
+  if (activeTab?.id && /^https?:\/\//i.test(activeTab.url || '')) {
+    // Normal use: scan the tab the user is currently viewing.
     targetTabId = activeTab.id;
   } else {
-    // We are in the toolkit standalone window or popup. We MUST create a new tab in a normal window 
-    // and MAKE IT ACTIVE so Chrome doesn't throttle the scrolling/JS.
-    const normalWindows = await chrome.windows.getAll({ windowTypes: ['normal'] });
-    const targetWindow = normalWindows.find(w => w.id !== undefined);
-    if (targetWindow?.id) {
-      const tab = await chrome.tabs.create({ windowId: targetWindow.id, url: 'about:blank', active: true });
-      targetTabId = tab.id;
-      // Focus the window so the tab isn't throttled
-      await chrome.windows.update(targetWindow.id, { focused: true });
+    // A standalone toolkit window is an extension page, not a scan target. Reuse
+    // the active HTTP tab from a normal browser window so the page stays visible
+    // and the content script runs in a foreground tab.
+    const normalWindows = await chrome.windows.getAll({ windowTypes: ['normal'], populate: true });
+    const candidate = normalWindows
+      .flatMap(window => window.tabs || [])
+      .find(tab => tab.active && tab.id !== undefined && /^https?:\/\//i.test(tab.url || ''));
+
+    if (candidate?.id !== undefined) {
+      targetTabId = candidate.id;
+      if (candidate.windowId !== undefined) {
+        await chrome.windows.update(candidate.windowId, { focused: true });
+      }
+      await chrome.tabs.update(candidate.id, { active: true });
     } else {
       const win = await chrome.windows.create({ url: 'about:blank', type: 'normal', focused: true });
       targetTabId = win?.tabs?.[0]?.id;
     }
   }
 
-  if (!targetTabId) {
+  if (targetTabId === undefined) {
     sendResponse({ success: false, error: 'Could not find or create a tab' });
     return;
   }
