@@ -118,7 +118,7 @@ export function OverlayApp({ isOpen, onClose, onToggle }: OverlayAppProps) {
           style={position.x !== 0 || position.y !== 0 ? { position: 'fixed', left: position.x, top: position.y, transform: 'none' } : {}}
         >
           <Header
-            title="পোস্ট ফাইন্ডার প্রো"
+            title="প্রহর ফেসবুক টুলকিট"
             subtitle="মাল্টি-পেইজ কিউ এবং ফিড স্ক্যানার"
             theme={scanner.theme}
             toggleTheme={scanner.toggleTheme}

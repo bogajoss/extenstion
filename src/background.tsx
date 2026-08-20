@@ -1,4 +1,4 @@
-// Facebook Comment Finder — single-tab sequential URL queue
+// Prohor Facebook Toolkit — single-tab sequential URL queue
 import type {
   QueueState,
   PublicQueueState,
