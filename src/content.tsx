@@ -636,16 +636,60 @@ import type {
     return discovered;
   }
 
+  function findScrollableAncestor(start: HTMLElement | null): HTMLElement | null {
+    let current = start;
+    while (current && current !== document.body) {
+      const style = window.getComputedStyle(current);
+      const overflowY = style.overflowY;
+      const canScroll = current.scrollHeight > current.clientHeight + 100;
+      if (canScroll && (overflowY === 'auto' || overflowY === 'scroll' || overflowY === 'overlay')) {
+        return current;
+      }
+      current = current.parentElement;
+    }
+    return null;
+  }
+
+  function getScrollTarget(): HTMLElement | Window {
+    const feed = document.querySelector<HTMLElement>('[role="feed"]');
+    const feedContainer = findScrollableAncestor(feed);
+    if (feedContainer) return feedContainer;
+
+    const post = document.querySelector<HTMLElement>(
+      '[role="article"], [data-ad-rendering-role="story_message"], [aria-label="Leave a comment"]'
+    );
+    const postContainer = findScrollableAncestor(post);
+    if (postContainer) return postContainer;
+
+    return window;
+  }
+
+  function getScrollMetrics(target: HTMLElement | Window): { top: number; viewport: number; height: number } {
+    if (target === window) {
+      return {
+        top: window.scrollY,
+        viewport: window.innerHeight || document.documentElement.clientHeight || 0,
+        height: Math.max(document.documentElement.scrollHeight, document.body?.scrollHeight || 0)
+      };
+    }
+    const element = target as HTMLElement;
+    return {
+      top: element.scrollTop,
+      viewport: element.clientHeight,
+      height: element.scrollHeight
+    };
+  }
+
   function scrollPage(): boolean {
     if (Date.now() < noScrollBefore) return true;
 
-    const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
-    const scrollHeight = Math.max(document.documentElement.scrollHeight, document.body?.scrollHeight || 0);
+    const target = getScrollTarget();
+    const metrics = getScrollMetrics(target);
 
     // Facebook often injects the feed after document_idle. At that point the
-    // document is only one viewport tall, so treating it as the bottom would
-    // finish the scan before the first post is available.
-    if (scrollHeight <= viewportHeight + 100) {
+    // selected scroll surface is only one viewport tall, so treating it as the
+    // bottom would finish the scan before the first post is available.
+    if (metrics.height <= metrics.viewport + 100) {
       loadWaitRetries++;
       if (loadWaitRetries > 15) {
         finish(`⚠️ Feed did not become scrollable (${state.scanned} scanned)`);
@@ -655,7 +699,7 @@ import type {
     }
     loadWaitRetries = 0;
 
-    const atBottom = window.scrollY + viewportHeight >= scrollHeight - 100;
+    const atBottom = metrics.top + metrics.viewport >= metrics.height - 100;
     if (atBottom) {
       if (scrollRetries > 3) {
         finish(`✅ Done: Feed end (${state.scanned} scanned)`);
@@ -665,7 +709,13 @@ import type {
     } else {
       scrollRetries = 0;
     }
-    window.scrollBy({ top: Math.max(viewportHeight * 0.7, 500), behavior: 'smooth' });
+
+    const amount = Math.max(metrics.viewport * 0.7, 500);
+    if (target === window) {
+      window.scrollBy({ top: amount, behavior: 'smooth' });
+    } else {
+      target.scrollBy({ top: amount, behavior: 'smooth' });
+    }
     return true;
   }
 
