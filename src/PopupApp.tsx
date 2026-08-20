@@ -63,7 +63,7 @@ export function PopupApp() {
       
       <StatusStrip scannerState={scanner.scannerState} queue={scanner.queue} />
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <QueueCard 
           queueUrls={scanner.queueUrls}
           setQueueUrls={scanner.setQueueUrls}
